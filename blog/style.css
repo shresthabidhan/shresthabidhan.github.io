@@ -1,2 +1,15 @@
 @charset "utf-8";
 /* CSS Document */
+body {
+  font-family: sans-serif;
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1rem;
+  line-height: 1.6;
+}
+a { color: #007acc; }
+pre {
+  background: #f4f4f4;
+  padding: 0.5rem;
+  overflow-x: auto;
+}
