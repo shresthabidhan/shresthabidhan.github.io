@@ -1,67 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bidhan Shrestha - Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bidhan Shrestha - Portfolio</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="blog/index.html">Blog</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <nav class="container">
+      <h2>Bidhan Shrestha</h2>
+      <ul class="nav-links">
+        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="about/index.html"><i class="fas fa-user"></i> About</a></li>
+        <li><a href="projects/index.html"><i class="fas fa-code"></i> Projects</a></li>
+        <li><a href="blog/index.html"><i class="fas fa-pen"></i> Blog</a></li>
+        <li><a href="contact/index.html"><i class="fas fa-envelope"></i> Contact</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <section id="home">
-        <div class="intro">
-            <h1>Welcome to My Portfolio</h1>
-            <p>I am an Enthusiast and Engineer(under construction)</p>
-        </div>
-    </section>
+  <section class="hero">
+    <div class="container">
+      <h1 class="animate">Engineer Under Construction</h1>
+      <p class="tagline animate">Innovating at the intersection of hardware and software</p>
 
-    <section id="about">
-        <h2>About Me</h2>
-        <p>
-            Hello! I'm Bidhan Shrestha, a passionate student and aspiring engineer. 
-            I specialize in coding. I have experience with 
-            Python, JavaScript, C, and many other technologies.
-        </p>
-    </section>
+      <div class="cta-buttons">
+        <a href="projects.html" class="btn">See My Work</a>
+        <a href="about.html" class="btn">About Me</a>
+      </div>
+    </div>
+  </section>
 
-    <section id="projects">
-        <h2>Projects</h2>
-        <div class="project-card">
-            <h3>Project 1: Hello World</h3>
-            <p>A project showcasing displaying the "Hello, World!" message.</p>
-            <a href="https://github.com/shresthabidhan">View on GitHub</a>
-        </div>
-        <div class="project-card">
-            <h3>Project 2: Web Application</h3>
-            <p>A secure web application built with HTML, CSS, and <s>JavaScript</s>.</p>
-            <a href="https://github.com/shresthabidhan">View on GitHub</a>
-        </div>
-    </section>
+  <!-- Additional sections would follow the same structure -->
 
-    <section id="contact">
-        <h2>Contact Me</h2>
-        <p>You can reach me via email or on LinkedIn!</p>
-        <ul>
-            <li><a href="mailto:shresthabidhaan@gmail.com">Email</a></li>
-            <li><a href="https://www.linkedin.com/in/shresthabidhan">LinkedIn</a></li>
-            <li><a href="https://github.com/shresthabidhan">GitHub</a></li>
-        </ul>
-    </section>
 
-    <footer>
-        <p>© 2025 Bidhan Shrestha. All rights reserved.</p>
-    </footer>
 
+  <footer>
+    <div class="container">
+      <div class="social-links">
+        <a href="https://linkedin.com/in/shresthabidhan"><i class="fab fa-linkedin" title="LinkedIn"></i></a>
+        <a href="https://github.com/shresthabidhan"><i class="fab fa-github" title="Github"></i></a>
+      </div>
+      <p>&copy; 2025 Bidhan Shrestha. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
 </body>
 </html>
