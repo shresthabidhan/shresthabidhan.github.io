@@ -1,66 +1,60 @@
-/* Basic Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+@import url('styles.css');
+
+/* Hero Section */
+.hero {
+  height: 100vh;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  display: flex;
+  align-items: center;
+  color: var(--white);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  padding-top: 100px; /* Adjust for header height */
+  padding-bottom: 60px; /* Adjust for footer height */
 }
 
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    background-color: #f4f4f4;
+.hero h1 {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
 }
 
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+}
+
+a.btn {
+  text-decoration: none;
+}
+
+/* Debugging visibility for hero section */
+.hero h1, .hero p {
+    opacity: 1 !important; /* Ensure visibility */
+    visibility: visible !important; /* Ensure visibility */
+    transition: none; /* Disable animations temporarily */
+}
+
+/* Ensure header and footer are properly positioned */
 header {
-    background: #333333;
-    color: #ffffff;
-    padding: 10px 0;
-    text-align: center;
-}
-
-header nav ul {
-    list-style: none;
-}
-
-header nav ul li {
-    display: inline;
-    margin-right: 20px;
-}
-
-header nav ul li a {
-    color: #ffffff;
-    text-decoration: none;
-}
-
-section {
-    padding: 20px;
-    margin: 20px 0;
-}
-
-h2 {
-    margin-bottom: 10px;
-}
-
-.project-card {
-    background: #ffffff;
-    padding: 15px;
-    border: 1px solid #dddddd;
-    margin-bottom: 20px;
-}
-
-.project-card a {
-    color: #007BFF;
-    text-decoration: none;
-}
-
-.project-card a:hover {
-    text-decoration: underline;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
 footer {
-    text-align: center;
-    background-color: #333333;
-    color: #ffffff;
-    padding: 10px 0;
-    margin-top: 20px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
 }

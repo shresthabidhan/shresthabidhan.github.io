@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Configure .com.np Domain with GitHub Pages & Cloudflare</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <h2>Bidhan Shrestha</h2>
+      <ul class="nav-links">
+        <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="../about/index.html"><i class="fas fa-user"></i> About</a></li>
+        <li><a href="../projects/index.html"><i class="fas fa-code"></i> Projects</a></li>
+        <li><a href="index.html"><i class="fas fa-pen"></i> Blog</a></li>
+        <li><a href="../contact/index.html"><i class="fas fa-envelope"></i> Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <a href="index.html">← Back to Blog</a>
+  <h1>How to Configure a .com.np Domain with GitHub Pages and Cloudflare</h1>
+  <p><em>Posted May 7, 2025</em></p>
+
+  
+
+
+  <h1>How to Configure a .com.np Domain with a GitHub Pages Site Using Cloudflare</h1>
+
+  <p>Setting up a <strong>.com.np</strong> domain to work with GitHub Pages via Cloudflare gives you free hosting, HTTPS, caching, and DDoS protection. Here's a complete guide to get you started.</p>
+
+  <h2>🛠️ Prerequisites</h2>
+  <ul>
+    <li>A registered <code>.com.np</code> domain from <a href="https://register.com.np" target="_blank">register.com.np</a></li>
+    <li>A GitHub repository with your site set up for GitHub Pages</li>
+    <li>A Cloudflare account <a href="https://dash.cloudflare.com/signup" target="_blank">signup here</a></li>
+  </ul>
+
+  <h2>Step 1: Set Up Your GitHub Pages Site</h2>
+  <ol>
+    <li>Create a repository and push your site files (HTML, CSS, JS).</li>
+    <li>Go to <strong>Settings &gt; Pages</strong>.</li>
+    <li>Set:
+      <ul>
+        <li><strong>Source:</strong> Deploy from a branch</li>
+        <li><strong>Branch:</strong> main (or your default)</li>
+        <li><strong>Folder:</strong> /root or /docs</li>
+      </ul>
+    </li>
+    <li>Save. Your site will be available at:
+      <pre>https://yourusername.github.io/your-repo-name/</pre>
+    </li>
+  </ol>
+
+  <h2>Step 2: Get Your .com.np Domain Ready</h2>
+  <ol>
+    <li>Register the domain at <a href="https://register.com.np" target="_blank">register.com.np</a>.</li>
+    <li>Upload scanned documents (e.g., citizenship).</li>
+    <li>Skip nameservers for now if unsure.</li>
+    <li>Once approved, log in and prepare to set Cloudflare nameservers (Step 4).</li>
+  </ol>
+
+  <h2>Step 3: Add Your Domain to Cloudflare</h2>
+  <ol>
+    <li>Log in to <a href="https://dash.cloudflare.com" target="_blank">Cloudflare Dashboard</a>.</li>
+    <li>Click <strong>Add a Site</strong> and enter your domain.</li>
+    <li>Select the <strong>Free Plan</strong>.</li>
+    <li>Cloudflare scans for existing records (you can skip).</li>
+    <li>Note the Cloudflare nameservers provided (e.g.):
+      <pre>
+lola.ns.cloudflare.com
+yichun.ns.cloudflare.com
+      </pre>
+    </li>
+    <li>Go back to <a href="https://register.com.np" target="_blank">register.com.np</a> and update your domain's nameservers.</li>
+  </ol>
+
+  <h2>Step 4: Configure DNS on Cloudflare</h2>
+  <p>Go to the <strong>DNS</strong> tab of your Cloudflare dashboard and add these:</p>
+
+  <h3>✅ Root Domain (<code>yourdomain.com.np</code>)</h3>
+  <p>Add <strong>four A records</strong>:</p>
+  <pre>
+Type: A
+Name: @
+IPv4: 185.199.108.153
+Proxy: Proxied
+
+... (also add)
+185.199.109.153
+185.199.110.153
+185.199.111.153
+  </pre>
+
+  <h3>✅ www Subdomain</h3>
+  <pre>
+Type: CNAME
+Name: www
+Target: yourusername.github.io
+Proxy: Proxied
+  </pre>
+
+  <h2>Step 5: Configure Your GitHub Repo for the Custom Domain</h2>
+  <ol>
+    <li>Go to <strong>Settings &gt; Pages</strong> in your repo.</li>
+    <li>Under <strong>Custom Domain</strong>, enter:
+      <pre>yourdomain.com.np</pre>
+    </li>
+    <li>GitHub auto-creates a <code>CNAME</code> file, or you can manually add it:
+      <pre>yourdomain.com.np</pre>
+    </li>
+  </ol>
+
+  <h2>Step 6: Force HTTPS with Cloudflare</h2>
+  <ol>
+    <li>Go to the <strong>SSL/TLS</strong> tab.</li>
+    <li>Set SSL mode to <strong>Full</strong> or <strong>Full (strict)</strong>.</li>
+    <li>Enable:
+      <ul>
+        <li><strong>Always Use HTTPS</strong></li>
+        <li><strong>Automatic HTTPS Rewrites</strong></li>
+      </ul>
+    </li>
+  </ol>
+
+  <h2>🔄 Optional: Redirect www to non-www (or vice versa)</h2>
+  <p>In Cloudflare’s <strong>Page Rules</strong>, create a rule:</p>
+  <pre>
+If URL matches: www.yourdomain.com.np/*
+Forwarding URL (301): https://yourdomain.com.np/$1
+  </pre>
+
+  <h2>✅ Test Your Site</h2>
+  <ul>
+    <li>Visit <code>https://yourdomain.com.np</code></li>
+    <li>You should see your GitHub Pages site with HTTPS</li>
+  </ul>
+
+  <h2>📌 Troubleshooting Tips</h2>
+  <ul>
+    <li>DNS propagation may take up to 24–48 hours</li>
+    <li>Clear cache in Cloudflare and your browser</li>
+    <li>Ensure the <code>CNAME</code> file is present in your repo</li>
+    <li>Switch SSL mode if you face certificate issues</li>
+  </ul>
+
+  <h2>🚀 Conclusion</h2>
+  <p>Congratulations! You've successfully configured your free <code>.com.np</code> domain to work with GitHub Pages using Cloudflare. Enjoy the benefits of secure, fast, and free website hosting.</p>
+
+  
+
+
+  <footer>
+    <div class="container">
+      <div class="social-links">
+        <a href="https://linkedin.com/in/shresthabidhan"><i class="fab fa-linkedin" title="LinkedIn"></i></a>
+        <a href="https://github.com/shresthabidhan"><i class="fab fa-github" title="Github"></i></a>
+      </div>
+      <p>&copy; 2025 Bidhan Shrestha. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

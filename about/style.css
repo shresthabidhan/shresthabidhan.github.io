@@ -1,0 +1,103 @@
+@import url('../styles.css');
+
+/* About Section */
+.about-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #2980b9, #8e44ad);
+    color: white;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.about-content {
+    max-width: 1000px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.profile-img{
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.about-text h2 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.about-text p {
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin-bottom: 20px;
+}
+
+
+/* Skills Section */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.skill-item {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--light);
+  border-radius: 10px;
+}
+
+
+/* Skill Icons */
+.skill-item i {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--secondary);
+  position: relative;
+}
+
+
+.skill-item i::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 2px;
+  background: var(--accent);
+}
+
+/* CV Button Animation*/
+@keyframes redPulse {
+  0% { box-shadow: 0 0 0 0 rgba(179,27,27,0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(179,27,27,0); }
+  100% { box-shadow: 0 0 0 0 rgba(179,27,27,0); }
+}
+
+.cv-btn {
+  animation: redPulse 2s infinite;
+  text-decoration: none;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {  
+  .about-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+
