@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Resume Builder & Editor</title>
+<!-- Google Fonts Core + Alternatives -->
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+<style>
+  /* --- CUSTOMIZABLE VARIABLES --- */
+  :root {
+    --primary-font: 'EB Garamond', Georgia, serif;
+    --mono-font: 'DM Mono', monospace;
+    --base-font-size: 10.5pt;
+    --name-font-size: 26pt;
+    --line-height: 1.55;
+  }
+
+  /* --- BUILDER INTERFACE STYLES (Screen Only) --- */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background-color: #f4f5f7;
+    display: flex;
+    min-height: 100vh;
+    color: #1a1a1a;
+  }
+
+  /* Left Sidebar Control Panel */
+  .control-panel {
+    width: 320px;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    padding: 24px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.05);
+    z-index: 100;
+  }
+
+  .control-panel h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #0f172a;
+  }
+
+  .control-group {
+    margin-bottom: 20px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .control-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+
+  .control-group select, .control-group input[type="range"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    color: #334155;
+  }
+
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+  }
+  .btn-primary:hover { background: #1d4ed8; }
+
+  /* Workspace Canvas */
+  .workspace {
+    margin-left: 320px;
+    flex: 1;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    overflow-y: auto;
+  }
+
+  /* --- RESUME SHEET STYLES --- */
+  .resume-sheet {
+    background: #fff;
+    width: 8.5in;
+    min-height: 11in;
+    padding: 0.72in 0.7in 0.7in 0.7in;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    position: relative;
+    font-family: var(--primary-font);
+    font-size: var(--base-font-size);
+    line-height: var(--line-height);
+  }
+
+  /* Inline Editor Tweaks */
+  [contenteditable="true"] {
+    outline: none;
+    transition: background 0.2s;
+    border-radius: 2px;
+  }
+  [contenteditable="true"]:hover {
+    background-color: #f1f5f9;
+  }
+  [contenteditable="true"]:focus {
+    background-color: #e2e8f0;
+  }
+
+  /* Action Buttons for Sections/Items */
+  .item-wrap {
+    position: relative;
+    group: hover;
+  }
+  .action-bar {
+    position: absolute;
+    right: 0;
+    top: -24px;
+    display: none;
+    background: #334155;
+    border-radius: 4px;
+    padding: 2px;
+    z-index: 10;
+  }
+  .item-wrap:hover .action-bar, .section:hover .section-action-bar {
+    display: flex;
+    gap: 2px;
+  }
+  .action-btn {
+    background: transparent;
+    color: white;
+    border: none;
+    padding: 2px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    border-radius: 2px;
+  }
+  .action-btn:hover { background: #475569; }
+  .action-btn.delete { color: #f87171; }
+  
+  .section-action-bar {
+    display: none;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    justify-content: flex-end;
+  }
+
+  /* RESUME ELEMENT STYLES (Preserving Your Layout) */
+  .resume-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    border-bottom: 1.5px solid #1a1a1a;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+  .name {
+    font-size: var(--name-font-size);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    color: #1a1a1a;
+  }
+  .name-sub {
+    font-family: var(--mono-font);
+    font-size: calc(var(--base-font-size) * 0.76);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #666;
+    margin-top: 5px;
+  }
+  .contact-block {
+    text-align: right;
+    font-family: var(--mono-font);
+    font-size: calc(var(--base-font-size) * 0.74);
+    color: #444;
+    line-height: 1.7;
+  }
+  .contact-block a { color: #444; text-decoration: none; border-bottom: 0.5px solid #aaa; }
+
+  .section { margin-bottom: 13px; position: relative; }
+  .section-label {
+    font-family: var(--mono-font);
+    font-size: calc(var(--base-font-size) * 0.71);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: #888;
+    border-bottom: 0.5px solid #ccc;
+    padding-bottom: 3px;
+    margin-bottom: 9px;
+  }
+
+  .entry { margin-bottom: 9px; }
+  .entry-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .entry-title {
+    font-weight: 500;
+    font-size: var(--base-font-size);
+    color: #1a1a1a;
+  }
+  .entry-date {
+    font-family: var(--mono-font);
+    font-size: calc(var(--base-font-size) * 0.74);
+    color: #888;
+    white-space: nowrap;
+  }
+  .entry-sub {
+    font-size: calc(var(--base-font-size) * 0.90);
+    color: #555;
+    font-style: italic;
+  }
+  .entry-note {
+    font-size: calc(var(--base-font-size) * 0.90);
+    color: #444;
+    margin-top: 1px;
+  }
+
+  ul.bullets { list-style: none; padding: 0; margin-top: 4px; }
+  ul.bullets li {
+    padding-left: 1em;
+    position: relative;
+    font-size: calc(var(--base-font-size) * 0.93);
+    color: #333;
+    margin-bottom: 2px;
+    line-height: 1.5;
+  }
+  ul.bullets li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: #aaa;
+    font-family: var(--mono-font);
+    font-size: calc(var(--base-font-size) * 0.76);
+    top: 1px;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 3px 12px;
+    font-size: calc(var(--base-font-size) * 0.90);
+  }
+  .skill-row { display: contents; }
+  .skill-cat {
+    font-family: var(--mono-font);
+    font-size: calc(var(--base-font-size) * 0.76);
+    color: #888;
+    padding-top: 1px;
+  }
+  .skill-val { color: #333; }
+
+  .project-entry { margin-bottom: 8px; }
+  .project-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+  }
+  .project-title { font-weight: 500; font-size: calc(var(--base-font-size) * 0.95); }
+  .project-sem {
+    font-family: var(--mono-font);
+    font-size: calc(var(--base-font-size) * 0.74);
+    color: #888;
+  }
+  .project-desc {
+    font-size: calc(var(--base-font-size) * 0.90);
+    color: #444;
+    font-style: italic;
+    margin-bottom: 2px;
+  }
+
+  .activity-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 8px;
+    font-size: calc(var(--base-font-size) * 0.93);
+    padding: 2px 0;
+    border-bottom: 0.5px dotted #e0e0e0;
+  }
+  .activity-row:last-child { border-bottom: none; }
+  .act-name { color: #1a1a1a; }
+  .act-meta { font-family: var(--mono-font); font-size: calc(var(--base-font-size) * 0.74); color: #888; white-space: nowrap; }
+
+  /* --- PRINT OPTIMIZATION --- */
+  @media print {
+    .no-print, .action-bar, .section-action-bar { display: none !important; }
+    body { background: #fff; display: block; }
+    .control-panel { display: none; }
+    .workspace { margin-left: 0; padding: 0; display: block; }
+    .resume-sheet {
+      box-shadow: none;
+      padding: 0.65in;
+      width: 100%;
+      min-height: auto;
+    }
+    [contenteditable="true"]:hover, [contenteditable="true"]:focus { background: transparent; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR CONTROLS -->
+<div class="control-panel no-print">
+  <h2>Resume Settings</h2>
+  
+  <div class="control-group">
+    <label for="font-face-primary">Primary Font (Body)</label>
+    <select id="font-face-primary" onchange="updateFonts()">
+      <option value="'EB Garamond', Georgia, serif">EB Garamond (Elegant Serif)</option>
+      <option value="'Lora', serif">Lora (Modern Serif)</option>
+      <option value="'Inter', sans-serif">Inter (Clean Sans)</option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label for="font-face-mono">Secondary Font (Labels/Dates)</label>
+    <select id="font-face-mono" onchange="updateFonts()">
+      <option value="'DM Mono', monospace">DM Mono</option>
+      <option value="'Roboto Mono', monospace">Roboto Mono</option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label for="size-base">Base Font Size (<span id="size-base-val">10.5</span>pt)</label>
+    <input type="range" id="size-base" min="9" max="14" step="0.5" value="10.5" oninput="updateFontSizes()">
+  </div>
+
+  <div class="control-group">
+    <label for="size-name">Name Font Size (<span id="size-name-val">26</span>pt)</label>
+    <input type="range" id="size-name" min="20" max="36" step="1" value="26" oninput="updateFontSizes()">
+  </div>
+
+  <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+  
+  <button class="btn-primary" onclick="window.print()">Download PDF / Print</button>
+  
+  <p style="font-size: 11px; color: #64748b; margin-top: 15px; line-height: 1.4;">
+    <strong>Tip:</strong> Click directly on any text inside the resume to edit it. Hover over entries to add or remove blocks and list items.
+  </p>
+</div>
+
+<!-- WORKSPACE SHEET -->
+<div class="workspace">
+  <div class="resume-sheet" id="resume">
+    
+    <!-- HEADER -->
+    <header class="resume-header">
+      <div>
+        <div class="name" contenteditable="true">Aasha Shrestha</div>
+        <div class="name-sub" contenteditable="true">B.Arch Candidate &nbsp;·&nbsp; 4th Semester</div>
+      </div>
+      <div class="contact-block" contenteditable="true">
+        +977 98XXXXXXXX<br>
+        aasha.shrestha@email.com<br>
+        Kathmandu, Nepal<br>
+        <a href="#" onclick="return false;">aashashrestha.myportfolio.com</a>
+      </div>
+    </header>
+
+    <!-- EDUCATION -->
+    <section class="section" id="section-education">
+      <div class="section-label" contenteditable="true">Education</div>
+      <div class="section-content">
+        <div class="item-wrap entry">
+          <div class="action-bar"><button class="action-btn" onclick="addBullet(this)">+ Bullet</button><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+          <div class="entry-head">
+            <span class="entry-title" contenteditable="true">Bachelor of Architecture (B.Arch)</span>
+            <span class="entry-date" contenteditable="true">2023 — Present</span>
+          </div>
+          <div class="entry-sub" contenteditable="true">Tribhuvan University · Institute of Engineering, Pulchowk Campus — Lalitpur, Nepal</div>
+          <div class="entry-note" contenteditable="true">Currently in 4th Semester &nbsp;·&nbsp; CGPA: 3.6 / 4.0</div>
+        </div>
+        <div class="item-wrap entry">
+          <div class="action-bar"><button class="action-btn" onclick="addBullet(this)">+ Bullet</button><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+          <div class="entry-head">
+            <span class="entry-title" contenteditable="true">+2 Science (Physics, Chemistry, Mathematics)</span>
+            <span class="entry-date" contenteditable="true">2021 — 2023</span>
+          </div>
+          <div class="entry-sub" contenteditable="true">Sifal Secondary School — Kathmandu, Nepal &nbsp;·&nbsp; Grade: 3.76 GPA</div>
+        </div>
+      </div>
+      <div class="section-action-bar"><button class="action-btn" style="background:#64748b" onclick="addBlock('section-education', 'entry')">+ Add Education Entry</button></div>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="section" id="section-skills">
+      <div class="section-label" contenteditable="true">Skills</div>
+      <div class="skills-grid">
+        <div class="item-wrap skill-row">
+          <div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+          <span class="skill-cat" contenteditable="true">Software</span>
+          <span class="skill-val" contenteditable="true">AutoCAD (proficient) &nbsp;·&nbsp; Rhino 3D (developing) &nbsp;·&nbsp; SketchUp (proficient) &nbsp;·&nbsp; Photoshop &nbsp;·&nbsp; Illustrator</span>
+        </div>
+        <div class="item-wrap skill-row">
+          <div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+          <span class="skill-cat" contenteditable="true">Drafting</span>
+          <span class="skill-val" contenteditable="true">Hand drafting &nbsp;·&nbsp; Orthographic projections &nbsp;·&nbsp; Site analysis drawings &nbsp;·&nbsp; Construction details</span>
+        </div>
+        <div class="item-wrap skill-row">
+          <div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+          <span class="skill-cat" contenteditable="true">Model making</span>
+          <span class="skill-val" contenteditable="true">Cardboard, foam board, balsa wood &nbsp;·&nbsp; Site and massing models at 1:200 scale</span>
+        </div>
+      </div>
+      <div class="section-action-bar"><button class="action-btn" style="background:#64748b" onclick="addBlock('section-skills', 'skill')">+ Add Skill Category</button></div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section class="section" id="section-experience">
+      <div class="section-label" contenteditable="true">Experience</div>
+      <div class="section-content">
+        <div class="item-wrap entry">
+          <div class="action-bar"><button class="action-btn" onclick="addBullet(this)">+ Bullet</button><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+          <div class="entry-head">
+            <span class="entry-title" contenteditable="true">Architecture Intern (Part-time)</span>
+            <span class="entry-date" contenteditable="true">Jun 2024 — Aug 2024</span>
+          </div>
+          <div class="entry-sub" contenteditable="true">Sthapana Design Studio — Patan, Lalitpur</div>
+          <ul class="bullets">
+            <li class="item-wrap"><div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div><span contenteditable="true">Drafted working drawings and site plans for two residential renovation projects (~1,200 sqft each) using AutoCAD under senior architect supervision</span></li>
+            <li class="item-wrap"><div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div><span contenteditable="true">Prepared presentation boards combining SketchUp massing renders and hand-drawn perspectives for client approvals</span></li>
+            <li class="item-wrap"><div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div><span contenteditable="true">Assisted in site visits and documented existing conditions through measured drawings and photographs</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="section-action-bar"><button class="action-btn" style="background:#64748b" onclick="addBlock('section-experience', 'entry')">+ Add Experience Entry</button></div>
+    </section>
+
+    <!-- STUDIO PROJECTS -->
+    <section class="section" id="section-projects">
+      <div class="section-label" contenteditable="true">Selected Studio Projects</div>
+      <div class="section-content">
+        <div class="item-wrap project-entry">
+          <div class="action-bar"><button class="action-btn" onclick="addBullet(this)">+ Bullet</button><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+          <div class="project-head">
+            <span class="project-title" contenteditable="true">Community Library — Bhaktapur Old Town</span>
+            <span class="project-sem" contenteditable="true">4th Sem Studio</span>
+          </div>
+          <div class="project-desc" contenteditable="true">Public institution design responding to Newari courtyard typology and seismic constraints</div>
+          <ul class="bullets">
+            <li class="item-wrap"><div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div><span contenteditable="true">Designed a 650 sqm public library integrating a traditional chowk with contemporary reading terraces; developed full set of plans, sections, and 1:100 physical model</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="section-action-bar"><button class="action-btn" style="background:#64748b" onclick="addBlock('section-projects', 'project')">+ Add Project</button></div>
+    </section>
+
+    <!-- AWARDS & ACTIVITIES -->
+    <section class="section" id="section-activities">
+      <div class="section-label" contenteditable="true">Awards &amp; Activities</div>
+      <div class="section-content">
+        <div class="item-wrap activity-row">
+          <div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+          <span class="act-name" contenteditable="true">2nd Place — Annual Architectural Design Competition, Pulchowk Engineering Campus</span>
+          <span class="act-meta" contenteditable="true">2024</span>
+        </div>
+        <div class="item-wrap activity-row">
+          <div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+          <span class="act-name" contenteditable="true">Member — Society of Architecture Students (SAS), Pulchowk Campus</span>
+          <span class="act-meta" contenteditable="true">2023 — Present</span>
+        </div>
+      </div>
+      <div class="section-action-bar"><button class="action-btn" style="background:#64748b" onclick="addBlock('section-activities', 'activity')">+ Add Activity Line</button></div>
+    </section>
+
+  </div>
+</div>
+
+<!-- INTERACTIVE SCRIPTING -->
+<script>
+  // Dynamic font face switching
+  function updateFonts() {
+    const primary = document.getElementById('font-face-primary').value;
+    const mono = document.getElementById('font-face-mono').value;
+    
+    document.documentElement.style.setProperty('--primary-font', primary);
+    document.documentElement.style.setProperty('--mono-font', mono);
+  }
+
+  // Dynamic sizing adjustments
+  function updateFontSizes() {
+    const baseSize = document.getElementById('size-base').value;
+    const nameSize = document.getElementById('size-name').value;
+    
+    document.getElementById('size-base-val').innerText = baseSize;
+    document.getElementById('size-name-val').innerText = nameSize;
+
+    document.documentElement.style.setProperty('--base-font-size', baseSize + 'pt');
+    document.documentElement.style.setProperty('--name-font-size', nameSize + 'pt');
+  }
+
+  // Delete element logic
+  function deleteItem(button) {
+    const targetItem = button.closest('.item-wrap');
+    if (targetItem) {
+      targetItem.remove();
+    }
+  }
+
+  // Dynamic bullet generation
+  function addBullet(button) {
+    const parentBlock = button.closest('.item-wrap');
+    let bulletList = parentBlock.querySelector('ul.bullets');
+    
+    if (!bulletList) {
+      bulletList = document.createElement('ul');
+      bulletList.className = 'bullets';
+      parentBlock.appendChild(bulletList);
+    }
+    
+    const newBullet = document.createElement('li');
+    newBullet.className = 'item-wrap';
+    newBullet.innerHTML = `
+      <div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+      <span contenteditable="true">New bullet description point. Double-click to edit.</span>
+    `;
+    bulletList.appendChild(newBullet);
+  }
+
+  // Multi-type Block Addition logic
+  function addBlock(sectionId, type) {
+    const section = document.getElementById(sectionId);
+    let targetContainer = section.querySelector('.section-content') || section.querySelector('.skills-grid');
+    
+    const newBlock = document.createElement('div');
+    newBlock.className = 'item-wrap';
+
+    if (type === 'entry') {
+      newBlock.classList.add('entry');
+      newBlock.innerHTML = `
+        <div class="action-bar"><button class="action-btn" onclick="addBullet(this)">+ Bullet</button><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+        <div class="entry-head">
+          <span class="entry-title" contenteditable="true">Job Title / Degree Program</span>
+          <span class="entry-date" contenteditable="true">2025 — Present</span>
+        </div>
+        <div class="entry-sub" contenteditable="true">Company Name or Educational Institution — Location details</div>
+        <div class="entry-note" contenteditable="true">Optional secondary note descriptive text row.</div>
+      `;
+    } else if (type === 'project') {
+      newBlock.classList.add('project-entry');
+      newBlock.innerHTML = `
+        <div class="action-bar"><button class="action-btn" onclick="addBullet(this)">+ Bullet</button><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+        <div class="project-head">
+          <span class="project-title" contenteditable="true">Project Name Title</span>
+          <span class="project-sem" contenteditable="true">Timeline/Semester</span>
+        </div>
+        <div class="project-desc" contenteditable="true">Brief single line summary meta-description of project canvas scope.</div>
+      `;
+    } else if (type === 'activity') {
+      newBlock.className = 'item-wrap activity-row';
+      newBlock.innerHTML = `
+        <div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+        <span class="act-name" contenteditable="true">Honor, Honor Roll, Group Membership or Volunteering Role Name</span>
+        <span class="act-meta" contenteditable="true">Date / Year</span>
+      `;
+    } else if (type === 'skill') {
+      newBlock.className = 'item-wrap skill-row';
+      newBlock.innerHTML = `
+        <div class="action-bar"><button class="action-btn delete" onclick="deleteItem(this)">×</button></div>
+        <span class="skill-cat" contenteditable="true">New Category</span>
+        <span class="skill-val" contenteditable="true">Item A &nbsp;·&nbsp; Item B &nbsp;·&nbsp; Item C</span>
+      `;
+    }
+
+    targetContainer.appendChild(newBlock);
+  }
+</script>
+
+</body>
+</html>
