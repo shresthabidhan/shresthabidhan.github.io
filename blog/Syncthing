@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Sync Files Between Windows 10 and Android for Free with Syncthing</title>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #0891b2;
+      --accent-dark: #0e7490;
+      --accent-soft: #ecfeff;
+      --border: #e5e7eb;
+      --code-bg: #1e293b;
+      --code-text: #f8fafc;
+      --warn-bg: #fffbeb;
+      --warn-border: #f59e0b;
+      --tip-bg: #f0fdf4;
+      --tip-border: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 17px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header / Hero */
+    header.hero {
+      background: linear-gradient(135deg, #0f172a 0%, #164e63 100%);
+      color: #ffffff;
+      padding: 4.5rem 1.5rem 4rem;
+      text-align: center;
+    }
+
+    .hero-inner {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .tag {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.14);
+      color: #a5f3fc;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 4vw, 2.75rem);
+      line-height: 1.2;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      color: #cbd5e1;
+      max-width: 640px;
+      margin: 0 auto 1.75rem;
+    }
+
+    .meta {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      display: flex;
+      justify-content: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    /* Main Container */
+    main.container {
+      max-width: 780px;
+      margin: -2rem auto 4rem;
+      background: var(--surface);
+      padding: 2.75rem 2.5rem;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    @media (max-width: 640px) {
+      main.container {
+        margin: 0;
+        border-radius: 0;
+        padding: 2rem 1.25rem;
+        border-left: none;
+        border-right: none;
+      }
+    }
+
+    /* Table of Contents */
+    nav.toc {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    nav.toc h2 {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 0 0 0.75rem;
+      border: none;
+      padding: 0;
+    }
+
+    nav.toc ul {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.45rem 1.5rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav.toc a {
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    nav.toc a:hover {
+      text-decoration: underline;
+    }
+
+    /* Typography */
+    h2 {
+      font-size: 1.65rem;
+      font-weight: 750;
+      margin: 2.75rem 0 1rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 2px solid var(--border);
+      color: #0f172a;
+      letter-spacing: -0.015em;
+    }
+
+    h3 {
+      font-size: 1.22rem;
+      font-weight: 700;
+      margin: 1.85rem 0 0.65rem;
+      color: #1e293b;
+    }
+
+    p {
+      margin-bottom: 1.2rem;
+    }
+
+    ul, ol {
+      margin: 0 0 1.35rem 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.55rem;
+    }
+
+    a {
+      color: var(--accent-dark);
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 0.15rem 0.4rem;
+      border-radius: 5px;
+      font-size: 0.9em;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Code Blocks with Copy Button */
+    .code-wrapper {
+      position: relative;
+      margin: 1.25rem 0 1.6rem;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 1.15rem 1.25rem;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      border: none;
+      font-size: inherit;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    /* Callouts */
+    .callout {
+      padding: 1.1rem 1.3rem;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      font-size: 0.98rem;
+    }
+
+    .callout.tip {
+      background: var(--tip-bg);
+      border-left-color: var(--tip-border);
+    }
+
+    .callout.warn {
+      background: var(--warn-bg);
+      border-left-color: var(--warn-border);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      color: #0f172a;
+    }
+
+    /* Step Cards */
+    .step-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1.25rem;
+      background: #ffffff;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .step-badge {
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 1.12rem;
+      color: #0f172a;
+    }
+
+    .verify {
+      margin-top: 0.75rem;
+      padding-top: 0.65rem;
+      border-top: 1px dashed var(--border);
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .verify strong {
+      color: #15803d;
+    }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    tr:hover td {
+      background: #fcfdfe;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 0 1.5rem 3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <span class="tag">Self-Hosted &amp; Open Source Guide</span>
+      <h1>How to Sync Files Between Windows 10 and Android for Free with Syncthing</h1>
+      <p class="subtitle">
+        A complete, zero-cloud setup guide for syncing mismatched folders across your PC and phone—without touching your Windows <code>C:\</code> drive or paying a dime.
+      </p>
+      <div class="meta">
+        <span>Updated November 2026</span>
+        <span>&bull;</span>
+        <span>10 min read</span>
+        <span>&bull;</span>
+        <span>Windows 10 &amp; Android</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="toc" aria-label="Table of Contents">
+      <h2>In This Guide</h2>
+      <ul>
+        <li><a href="#why-syncthing">1. Why Syncthing Beats Cloud Sync</a></li>
+        <li><a href="#windows-setup">2. Windows 10 Portable Setup (Zero C:\ Usage)</a></li>
+        <li><a href="#android-setup">3. Android Setup with Syncthing-Fork</a></li>
+        <li><a href="#pairing-folders">4. Pairing Devices &amp; Asymmetric Folders</a></li>
+        <li><a href="#file-versioning">5. Choosing the Right File Versioning</a></li>
+        <li><a href="#connection-tips">6. Syncing Over Any Media &amp; Daily Tips</a></li>
+      </ul>
+    </nav>
+
+    <section id="why-syncthing">
+      <p>
+        Keeping files synchronized between a Windows PC and an Android smartphone usually forces an annoying compromise: either pay for cloud storage and upload private files to third-party servers, or manually plug in a USB cable and drag-and-drop folders every few days—hoping you don't accidentally overwrite your latest edits.
+      </p>
+      <p>
+        <strong>Syncthing</strong> eliminates both problems. It is a free, open-source, peer-to-peer synchronization tool that transfers files directly between your devices over your local Wi-Fi, mobile hotspot, or USB tethering—with zero cloud middlemen, no file size caps, and full end-to-end encryption.
+      </p>
+
+      <h3>Why It Works So Well for Messy Folder Structures</h3>
+      <p>
+        Most sync tools force your phone and PC to mirror an identical directory tree. Syncthing instead pairs directories using a shared <strong>Folder ID</strong>, letting each device map that ID to wherever the files naturally live:
+      </p>
+      <ul>
+        <li><strong>Pair 1 (<code>work-docs</code>):</strong> Maps to <code>D:\Projects\Active\Docs</code> on Windows and <code>/storage/emulated/0/Download/Work</code> on Android.</li>
+        <li><strong>Pair 2 (<code>notes-vault</code>):</strong> Maps to <code>D:\Notes\Markdown</code> on Windows and <code>/storage/emulated/0/Documents/Obsidian</code> on Android.</li>
+      </ul>
+      <p>
+        Edit a document on your phone during a commute, and the moment your phone and PC connect, Syncthing updates your PC copy automatically—and vice versa.
+      </p>
+    </section>
+
+    <section id="windows-setup">
+      <h2>Step 1: Set Up Syncthing on Windows 10 (Zero <code>C:\</code> Drive Usage)</h2>
+      <p>
+        By default, Windows installers drop programs into <code>C:\Program Files</code> and store Syncthing's database and file indexes inside <code>%LOCALAPPDATA%\Syncthing</code> on your main OS drive. If your <code>C:\</code> drive is a small SSD you want to keep spotless, use the <strong>portable ZIP build</strong> with the <code>--home</code> startup flag on a secondary drive (such as <code>D:\</code>).
+      </p>
+
+      <div class="step-card">
+        <div class="step-header">
+          <span class="step-badge">Step 1.1</span>
+          <span class="step-title">Download the Portable Windows ZIP</span>
+        </div>
+        <p>
+          Visit <a href="https://syncthing.net/downloads/" target="_blank" rel="noopener">syncthing.net/downloads</a> and download the <strong>Base Syncthing</strong> ZIP archive for <strong>Windows Intel/AMD (64-bit)</strong> (for example, <code>syncthing-windows-amd64-v2.x.x.zip</code>). Avoid third-party <code>.exe</code> installers so nothing writes to <code>C:\</code>.
+        </p>
+        <div class="verify"><strong>Verify:</strong> Confirm you downloaded a <code>.zip</code> archive rather than an installer executable.</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <span class="step-badge">Step 1.2</span>
+          <span class="step-title">Extract to Your Secondary Drive</span>
+        </div>
+        <p>
+          Create a folder on your secondary drive—such as <code>D:\Syncthing</code>—and extract <code>syncthing.exe</code> directly into it. Inside <code>D:\Syncthing</code>, create an empty subfolder named <code>Home</code> (<code>D:\Syncthing\Home</code>) to store your database, certificates, and configuration.
+        </p>
+        <div class="verify"><strong>Verify:</strong> Both <code>D:\Syncthing\syncthing.exe</code> and the empty folder <code>D:\Syncthing\Home</code> exist.</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <span class="step-badge">Step 1.3</span>
+          <span class="step-title">Create a Portable Launcher Script</span>
+        </div>
+        <p>
+          Open Notepad, paste the two lines below, and save the file as <code>StartSyncthing.bat</code> inside <code>D:\Syncthing</code> (be sure to set <strong>Save as type</strong> to <em>All Files</em> so Windows doesn't name it <code>StartSyncthing.bat.txt</code>):
+        </p>
+        <div class="code-wrapper">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><code>cd /d "D:\Syncthing"
+start "" "D:\Syncthing\syncthing.exe" --home="D:\Syncthing\Home" --no-console</code></pre>
+        </div>
+        <p>
+          Passing <code>--home="D:\Syncthing\Home"</code> before the very first launch guarantees Syncthing never creates a default folder on your <code>C:\</code> drive, while <code>--no-console</code> keeps a black command prompt window from cluttering your taskbar.
+        </p>
+        <div class="verify"><strong>Verify:</strong> <code>StartSyncthing.bat</code> sits right next to <code>syncthing.exe</code>.</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <span class="step-badge">Step 1.4</span>
+          <span class="step-title">Launch and Confirm Storage Paths</span>
+        </div>
+        <p>
+          Double-click <code>StartSyncthing.bat</code>. Your browser will automatically open the Syncthing Web GUI at <code>http://127.0.0.1:8384</code>. Click <strong>Actions &rarr; About</strong> in the top-right corner to inspect where Syncthing is storing its files.
+        </p>
+        <div class="verify"><strong>Verify:</strong> Both <strong>Configuration</strong> and <strong>Database</strong> paths start with <code>D:\Syncthing\Home</code>, and <code>%LOCALAPPDATA%\Syncthing</code> does not exist on <code>C:\</code>.</div>
+      </div>
+
+      <div class="callout tip">
+        <strong>Optional: Auto-Start on Windows Boot</strong>
+        Want Syncthing ready whenever you log in? Right-click <code>StartSyncthing.bat</code> &rarr; <strong>Create shortcut</strong>. Press <code>Win + R</code>, type <code>shell:startup</code>, press Enter, and move the shortcut into that Startup folder. The shortcut uses virtually zero space while keeping all program data on <code>D:\</code>.
+      </div>
+    </section>
+
+    <section id="android-setup">
+      <h2>Step 2: Set Up Syncthing-Fork on Android</h2>
+      <p>
+        The legacy official Syncthing Android app was retired, so you should install <strong>Syncthing-Fork</strong>—the actively maintained community edition with better battery controls and modern Android storage support.
+      </p>
+
+      <div class="step-card">
+        <div class="step-header">
+          <span class="step-badge">Step 2.1</span>
+          <span class="step-title">Install Syncthing-Fork</span>
+        </div>
+        <p>
+          Download and install <strong>Syncthing-Fork</strong> from <a href="https://f-droid.org/" target="_blank" rel="noopener">F-Droid</a> or directly from its <a href="https://github.com/researchxxl/syncthing-android/releases" target="_blank" rel="noopener">GitHub Releases page</a>.
+        </p>
+        <div class="verify"><strong>Verify:</strong> Syncthing-Fork appears in your Android app drawer.</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <span class="step-badge">Step 2.2</span>
+          <span class="step-title">Grant Storage &amp; Battery Permissions</span>
+        </div>
+        <p>
+          Launch Syncthing-Fork and complete the two setup prompts:
+        </p>
+        <ol>
+          <li>Grant <strong>All files access</strong> so Syncthing can read and write across arbitrary directories on internal storage or an SD card.</li>
+          <li>Disable <strong>Battery Optimization</strong> for Syncthing-Fork so Android doesn't terminate an active sync mid-transfer.</li>
+        </ol>
+        <div class="verify"><strong>Verify:</strong> The app opens to its main tabs (<strong>Folders</strong>, <strong>Devices</strong>, <strong>Status</strong>) with no warning banners.</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <span class="step-badge">Step 2.3</span>
+          <span class="step-title">Configure 1-Tap Manual Sync (Zero Idle Battery Drain)</span>
+        </div>
+        <p>
+          If you prefer syncing strictly on demand rather than keeping a background service running:
+        </p>
+        <ol>
+          <li>Open the left menu (<code>&#9776;</code>) &rarr; <strong>Settings &rarr; Run Conditions</strong>.</li>
+          <li>Uncheck <strong>Start on boot</strong> and disable automatic run triggers (or restrict syncing to Wi-Fi / charging only).</li>
+          <li>Swipe down your Android Quick Settings shade, tap the pencil/edit icon, and drag the <strong>Syncthing</strong> tile into your active quick toggles.</li>
+        </ol>
+        <div class="verify"><strong>Verify:</strong> Tapping the Quick Settings tile starts Syncthing on demand, syncs your folders, and tapping it again shuts the service down cleanly.</div>
+      </div>
+    </section>
+
+    <section id="pairing-folders">
+      <h2>Step 3: Pair Devices &amp; Map Mismatched Folders</h2>
+      <p>
+        With both apps running on the same network, linking them takes less than two minutes.
+      </p>
+
+      <div class="step-card">
+        <div class="step-header">
+          <span class="step-badge">Step 3.1</span>
+          <span class="step-title">Exchange Device IDs via QR Code</span>
+        </div>
+        <ol>
+          <li>On your Windows Web GUI (<code>127.0.0.1:8384</code>), click <strong>Actions &rarr; Show ID</strong> to display your PC's QR code.</li>
+          <li>On Android, open Syncthing-Fork &rarr; <strong>Devices</strong> tab &rarr; tap <strong><code>+</code></strong> &rarr; tap the QR scanner icon next to <strong>Device ID</strong> and scan your PC monitor. Name the device (e.g., <code>Windows-PC</code>) and tap the checkmark (<code>&#10003;</code>).</li>
+          <li>Within 10 seconds, a yellow banner will appear on your PC Web GUI: <em>"New device wants to connect."</em> Click <strong>Add Device</strong> &rarr; <strong>Save</strong>.</li>
+        </ol>
+        <div class="verify"><strong>Verify:</strong> Both devices show a green <strong>Connected</strong> status under each other's Devices tab.</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <span class="step-badge">Step 3.2</span>
+          <span class="step-title">Map Your First Folder Pair</span>
+        </div>
+        <ol>
+          <li>On your PC Web GUI, click <strong>+ Add Folder</strong>.</li>
+          <li>In the <strong>General</strong> tab, give the folder a friendly <strong>Folder Label</strong> (e.g., <code>Work Docs</code>), a clean <strong>Folder ID</strong> (e.g., <code>work-docs</code>), and point <strong>Folder Path</strong> to your directory on <code>D:\</code> (e.g., <code>D:\MyFiles\Work</code>).</li>
+          <li>Switch to the <strong>Sharing</strong> tab and check the box next to your Android phone.</li>
+          <li>Switch to the <strong>File Versioning</strong> tab, select <strong>Staggered File Versioning</strong> (explained below), and click <strong>Save</strong>.</li>
+          <li>On Android, tap the incoming notification <em>"Windows-PC wants to share folder work-docs"</em>, select your matching Android folder path (e.g., <code>/storage/emulated/0/Documents/Work</code>), set <strong>File Versioning</strong> to <strong>Trash Can</strong>, and tap <code>&#10003;</code>.</li>
+        </ol>
+        <div class="verify"><strong>Verify:</strong> Both devices display <strong>Up to Date</strong> in green, and test files dropped into either folder appear on the other device within seconds.</div>
+      </div>
+
+      <p>
+        Repeat <strong>Step 3.2</strong> for every additional directory pair you want to synchronize, assigning each pair its own unique <strong>Folder ID</strong>.
+      </p>
+    </section>
+
+    <section id="file-versioning">
+      <h2>Step 4: Protect Your Files with File Versioning</h2>
+      <p>
+        Because Syncthing mirrors deletions and overwrites across devices, turning on <strong>File Versioning</strong> is essential. Instead of permanently destroying an overwritten or deleted file, Syncthing moves the older copy into a hidden <code>.stversions</code> folder inside your synced directory.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Versioning Mode</th>
+              <th>How It Works</th>
+              <th>Best Used On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Staggered</strong></td>
+              <td>Keeps dense snapshots of recent edits (1 per 30s for the first hour, hourly for 24h, daily for 30 days, weekly thereafter) up to a max age (default: 365 days).</td>
+              <td><strong>Windows PC</strong> — ideal primary safety net where storage is abundant.</td>
+            </tr>
+            <tr>
+              <td><strong>Trash Can</strong></td>
+              <td>Keeps only the single most recent overwritten or deleted version for a set number of days (default: 30 days).</td>
+              <td><strong>Android Phone</strong> — acts as a lightweight "undo" button without eating phone storage.</td>
+            </tr>
+            <tr>
+              <td><strong>Simple</strong></td>
+              <td>Retains the last <em>N</em> versions of every changed file (e.g., <code>Keep Versions = 3</code>).</td>
+              <td>Folders with large media or archives where you want a strict version count cap.</td>
+            </tr>
+            <tr>
+              <td><strong>External</strong></td>
+              <td>Passes deleted/replaced files to a custom shell script or backup utility.</td>
+              <td>Advanced NAS or custom snapshot workflows.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <strong>What Happens If You Edit the Same File on Both Devices?</strong>
+        If you modify the exact same file on both Windows and Android before they sync, Syncthing never silently discards your work. It keeps both copies and renames the older edit to <code>filename.sync-conflict-YYYYMMDD-HHMMSS.ext</code> so you can compare and merge them safely.
+      </div>
+    </section>
+
+    <section id="connection-tips">
+      <h2>Step 5: Syncing Over Any Media &amp; Practical Tips</h2>
+      <ul>
+        <li><strong>Works Without Home Wi-Fi:</strong> Turn on your Android phone's portable Wi-Fi hotspot and connect your Windows laptop to it. Syncthing automatically discovers peers over the local hotspot subnet—transferring files at full Wi-Fi speed while using <strong>zero cellular data</strong>.</li>
+        <li><strong>Works Over a USB Cable:</strong> Plug your phone into your PC via USB and enable <strong>USB Tethering</strong> in Android's network settings. Windows sees a direct local network link to your phone, and Syncthing syncs immediately over the wire.</li>
+        <li><strong>Ignore OS Junk Files:</strong> Create a plain text file named <code>.stignore</code> inside the root of a synced folder and add patterns like <code>desktop.ini</code>, <code>Thumbs.db</code>, and <code>.trashed-*</code> so Windows thumbnails and Android trash temp files never clutter your sync queue.</li>
+        <li><strong>Moving Your Home Directory Later:</strong> If you ever relocate <code>D:\Syncthing\Home</code> to another drive, shut down Syncthing completely first (<strong>Actions &rarr; Shutdown</strong>), move the folder contents, and update the <code>--home</code> path in <code>StartSyncthing.bat</code> (or set the <code>STHOMEDIR</code> environment variable).</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Built with clean semantic HTML &amp; CSS &bull; Ready to publish on any static site, blog, or CMS.</p>
+  </footer>
+
+  <script>
+    function copyCode(button) {
+      const codeBlock = button.nextElementSibling.querySelector("code");
+      navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+        const originalText = button.innerText;
+        button.innerText = "Copied!";
+        setTimeout(() => {
+          button.innerText = originalText;
+        }, 1800);
+      });
+    }
+  </script>
+</body>
+</html>
